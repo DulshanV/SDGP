@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Harmonized System Classifier - Full Page</title>
+    <link rel="stylesheet" href="log-in-register.html">
 
     <style>
         * {
@@ -529,75 +530,151 @@
         /* START: New Team Section Styles 
         */
         .team-section {
-            background: transparent; /* Changed from light lavender to transparent */
-            display: block; /* Override flex to allow normal page flow */
-            padding: 100px 20px;
-            min-height: auto; /* Not full screen */
-        }
+    background: transparent;
+    display: block;
+    padding: 100px 20px;
+    min-height: auto;
+}
 
-        .team-container {
-            max-width: 1100px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 300px 1fr; /* Title on left, grid on right */
-            gap: 60px;
-        }
+.team-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 60px;
+}
 
-        .team-title {
-            font-size: clamp(36px, 6vw, 56px);
-            font-weight: 800;
-            color: white; /* Changed from dark purple */
-            line-height: 1.3;
-        }
+.team-title {
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 800;
+    color: white;
+    line-height: 1.3;
+}
 
-        .team-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr; /* Changed from 1fr 1fr */
-            gap: 50px 40px;
-        }
+.team-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 50px 40px;
+}
 
-        .team-card {
-            background: transparent;
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s ease-out;
-        }
-        
-        .team-card.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
+.team-card {
+    background: transparent;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s ease-out;
+}
 
-        .team-image-placeholder {
-            width: 100%;
-            aspect-ratio: 1 / 1; /* Square */
-            background: rgba(255, 255, 255, 0.15); /* Changed to glassmorphism style */
-            border-radius: 16px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.3); /* Changed to glassmorphism style */
-        }
+.team-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
 
-        .team-name {
-            font-size: 22px;
-            font-weight: 700;
-            color: white; /* Changed from dark purple */
-            margin-bottom: 5px;
-        }
+/* UPDATED: Targeted the img tag directly */
+.team-image {
+    width: 100%;
+    aspect-ratio: 1 / 1;     /* Forces the image to be a square */
+    object-fit: cover;       /* Crops the image so it doesn't stretch */
+    border-radius: 16px;     /* Rounded corners */
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Glass border effect */
+    display: block;
+}
 
-        .team-role {
-            font-size: 15px;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.9); /* Changed from muted purple */
-            margin-bottom: 12px;
-        }
+.team-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 5px;
+}
 
-        .team-description {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.85); /* Changed from dark purple */
-            line-height: 1.6;
-        }
+.team-role {
+    font-size: 15px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 12px;
+}
+
+.team-description {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.6;
+}
         /* END: New Team Section Styles 
         */
+
+        /* AI Chatbot Icon */
+.ai-chatbot-button {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 100;
+    
+    /* Glassmorphism Style */
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    
+    /* Icon Styling */
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.ai-chatbot-button:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+}
+
+.ai-chatbot-button svg {
+    width: 28px;
+    height: 28px;
+}
+
+/* Pulse animation for attention */
+.ai-chatbot-button::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.3);
+        opacity: 0;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .ai-chatbot-button {
+        bottom: 90px; /* Move up to avoid bottom navbar */
+        right: 20px;
+        width: 50px;
+        height: 50px;
+    }
+    
+    .ai-chatbot-button svg {
+        width: 24px;
+        height: 24px;
+    }
+}
 
         /* START: New Contact Section Styles */
         .contact-section {
@@ -1333,8 +1410,8 @@
                             <label>Product Details</label>
                             <textarea id="productDetails" name="productDetails" placeholder="Enter product details....." required></textarea>
                         </div>
-                        
-                        <button type="submit" class="submit-button">Search HS Code</button>
+
+                        <button type="submit" class="submit-button" id="hsFinderSearchBtn">Search HS Code</button>
                     </form>
                 </div>
             </div>
@@ -1345,51 +1422,42 @@
         <div class="team-container">
             <h2 class="team-title">Meet the Minds Behind our Mission.</h2>
             
-            <div class="team-grid">
-                <div class="team-card" id="teamCard1">
-                    <div class="team-image-placeholder"></div>
-                    <h3 class="team-name">Dulshan</h3>
-                    <p class="team-role">Product Specialist</p>
-                    <p class="team-description">Our Product Specialist has extensive knowledge of HS codes and helps ensure accurate product classifications.</p>
-                </div>
-                
-                <div class="team-card" id="teamCard2">
-                    <div class="team-image-placeholder"></div>
-                    <h3 class="team-name">Thevinu</h3>
-                    <p class="team-role">Customer Support Lead</p>
-                    <p class="team-description">Our Customer Support Lead is dedicated to providing quick and helpful assistance to build trusted relationships.</p>
-                </div>
+           <div class="team-grid">
+    <div class="team-card" id="teamCard1">
+        <img src="src/Dulshan.jpg" alt="Dulshan" class="team-image">
+        <h3 class="team-name">Dulshan</h3>
+    </div>
 
-                <div class="team-card" id="teamCard3">
-                    <div class="team-image-placeholder"></div>
-                    <h3 class="team-name">Thamadi</h3>
-                    <p class="team-role">Data Analyst</p>
-                    <p class="team-description">The Data Analyst continuously updates our database to ensure users get the latest HS code information.</p>
-                </div>
+    <div class="team-card" id="teamCard2">
+        <img src="src/thevinu[1].jpg" alt="Thevinu" class="team-image">
+        <h3 class="team-name">Thevinu</h3>
+    </div>
 
-                <div class="team-card" id="teamCard4">
-                    <div class="team-image-placeholder"></div>
-                    <h3 class="team-name">Chanugi</h3>
-                    <p class="team-role">Software Developer</p>
-                    <p class="team-description">Our Software Developer designs intuitive features to make HS code searching effortless.</p>
-                </div>
-                
-                <div class="team-card" id="teamCard5">
-                    <div class="team-image-placeholder"></div>
-                    <h3 class="team-name">Muditha</h3>
-                    <p class="team-role">UX/UI Designer</p>
-                    <p class="team-description">Our designer crafts user-friendly interfaces to ensure a seamless and intuitive experience for all users.</p>
-                </div>
-                
-                <div class="team-card" id="teamCard6">
-                    <div class="team-image-placeholder"></div>
-                    <h3 class="team-name">Yasmi</h3>
-                    <p class="team-role">QA Engineer</p>
-                    <p class="team-description">Our QA Engineer rigorously tests every feature to maintain the highest standard of quality and accuracy.</p>
-                </div>
+    <div class="team-card" id="teamCard3">
+        <img src="src/thamadi.jpg" alt="Thamadi" class="team-image">
+        <h3 class="team-name">Thamadi</h3>
+    </div>
+
+    <div class="team-card" id="teamCard4">
+        <img src="src/chanugi.jpg" alt="Chanugi" class="team-image">
+        <h3 class="team-name">Chanugi</h3>
+    </div>
+
+    <div class="team-card" id="teamCard5">
+        <img src="src/muditha.jpg" alt="Muditha" class="team-image">
+        <h3 class="team-name">Muditha</h3>
+    </div>
+
+    <div class="team-card" id="teamCard6">
+        <img src="src/yasmi.jpg" alt="Yasmi" class="team-image">
+        <h3 class="team-name">Yasmi</h3>
+    </div>
+</div>
             </div>
         </div>
     </section>
+
+    
     <section class="page-section contact-section" id="contact">
         <div class="contact-container" id="contactContainer">
 
@@ -1640,6 +1708,16 @@
         </div>
     </section>
 
+    <!-- AI Chatbot Button -->
+<button id="aiChatbotBtn" class="ai-chatbot-button" title="AI Assistant">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        <path d="M8 10h.01"></path>
+        <path d="M12 10h.01"></path>
+        <path d="M16 10h.01"></path>
+    </svg>
+</button>
+
     <button id="scrollTopBtn" class="scroll-to-top" title="Go to top">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="19" x2="12" y2="5"></line>
@@ -1866,28 +1944,21 @@
         /* REMOVED: Auth button interactions script 
         */ 
 
-        // HS Finder Form Submission
+        // Handle HS Finder Form Submission
         const hsFinderForm = document.getElementById('hsFinderForm');
         if (hsFinderForm) {
-            hsFinderForm.addEventListener('submit', (e) => {
+            hsFinderForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
-                // Collect form data
+                // Get values
                 const email = document.getElementById('email').value;
                 const madeIn = document.getElementById('madeIn').value;
                 const shipTo = document.getElementById('shipTo').value;
                 const itemPrice = document.getElementById('itemPrice').value;
                 const currency = document.getElementById('currency').value;
-                const productDetails = document.getElementById('productDetails').value.trim();
+                const productDetails = document.getElementById('productDetails').value;
                 
-                // Check if product details is filled
-                if (!productDetails) {
-                    alert('Please enter product details to search.');
-                    document.getElementById('productDetails').focus();
-                    return;
-                }
-                
-                // Create URL with query parameters
+                // Construct URL parameters
                 const params = new URLSearchParams({
                     email: email,
                     madeIn: madeIn,
@@ -1898,23 +1969,25 @@
                 });
                 
                 // Redirect to results page
-                window.location.href = '/search-results.html?' + params.toString();
+                window.location.href = 'search-results.html?' + params.toString();
             });
         }
-        
+
         // Form submission simulation for Contact Us
-        const contactForm = document.querySelector('#contact .submit-button');
-        if (contactForm) {
-            contactForm.addEventListener('click', (e) => {
-                e.preventDefault();
+        const contactSubmitBtn = document.querySelector('#contact .submit-button');
+        if (contactSubmitBtn) {
+            contactSubmitBtn.addEventListener('click', (e) => {
+                e.preventDefault(); // Prevent actual form submission
                 
+                // Add click animation
                 const btn = e.target;
                 btn.style.transform = 'scale(0.95)';
                 setTimeout(() => {
                     btn.style.transform = '';
                 }, 200);
-                
-                alert('Form submitted (simulation)!');
+
+                // You can add your form submission logic here
+                alert('Contact form submitted (simulation)!');
             });
         }
 
@@ -1951,6 +2024,22 @@
         sections.forEach(section => {
             navObserver.observe(section);
         });
+
+        // 
+// AI Chatbot Button Script
+// 
+const aiChatbotBtn = document.getElementById('aiChatbotBtn');
+
+if (aiChatbotBtn) {
+    aiChatbotBtn.addEventListener('click', () => {
+        // Your chatbot logic will go here
+        console.log('AI Chatbot clicked!');
+        alert('AI Chatbot will open here');
+    });
+}
+// 
+// END: AI Chatbot Button Script
+//
 
         // 
 // START: Auth button link
