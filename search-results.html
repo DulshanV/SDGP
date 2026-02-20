@@ -412,7 +412,7 @@
     <div class="glass-orb orb-3"></div>
 
     <div class="container">
-        <a href="index.html" class="back-button">
+        <a href="index.html#finder" class="back-button">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="19" y1="12" x2="5" y2="12"></line>
                 <polyline points="12 19 5 12 12 5"></polyline>
@@ -660,21 +660,26 @@
         }
 
         function displayResults(data) {
-            const loading = document.getElementById('loading');
-            const resultsContainer = document.getElementById('resultsContainer');
-            
-            loading.style.display = 'none';
-            resultsContainer.classList.add('show');
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+    // ... existing loading/container logic ...
 
-            if (!data.hits || data.hits.length === 0) {
-                resultsContainer.innerHTML = `
-                    <div class="no-results">
-                        <h2>No Results Found</h2>
-                        <p>We couldn't find any HS codes matching your query. Try refining your search terms.</p>
-                    </div>
-                `;
-                return;
-            }
+    resultsContainer.innerHTML = data.hits.map(hit => {
+        const doc = hit.document;
+        // Only show the star if logged in
+        const favoriteHtml = isLoggedIn ? 
+            `<span class="favorite-btn" onclick="toggleFavorite(this)">☆</span>` : '';
+
+        return `
+            <div class="result-card" data-code="${doc.hscode}">
+                <div class="result-header">
+                    <div class="hs-code">${doc.hscode || 'N/A'} ${favoriteHtml}</div>
+                    <div class="relevance-score">${relevancePercent}% Match</div>
+                </div>
+                <div class="description">${doc.description}</div>
+            </div>
+        `;
+    }).join('');
+}
 
             resultsContainer.innerHTML = data.hits.map(hit => {
                 const doc = hit.document;
@@ -698,7 +703,7 @@
                     </div>
                 `;
             }).join('');
-        }
+        
 
         // Start search when page loads
         performSearch();
