@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Harmonized System Classifier - Full Page</title>
+    <link rel="stylesheet" href="log-in-register.html">
 
     <style>
         * {
@@ -19,12 +21,53 @@
             position: relative;
         }
 
-        /* REMOVED: .auth-container and .auth-btn styles 
-        */
+        .main-logo-container {
+    position: fixed;
+    top: 20px;     /* Adjusted for the larger size */
+    left: 20px;
+    z-index: 101; 
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+}
+
+.main-logo-container img {
+    width: 150px;  /* Enhanced Size: increased from 60px */
+    height: auto;
+    
+    /* REMOVE WHITE BACKGROUND: 
+       'multiply' makes white parts transparent on dark backgrounds */
+    mix-blend-mode: multiply; 
+    
+    /* If your background is very dark, 'screen' or 'lighten' might work better.
+       Try changing 'multiply' to 'lighten' if the logo looks too dark. */
+    
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.2));
+    transition: transform 0.3s ease;
+}
+
+/* Mobile Responsive adjustment */
+@media (max-width: 768px) {
+    .main-logo-container img {
+        width: 80px; /* Slightly smaller on mobile to save space */
+    }
+}
+
+/* Adjust navbar for mobile so it doesn't overlap the logo */
+@media (max-width: 768px) {
+    .main-logo-container {
+        top: 15px;
+        left: 15px;
+    }
+    .main-logo-container img {
+        width: 45px;
+    }
+}
 
         /* NEW: Auth Button */
         .auth-container {
-            position: absolute; /* Changed from fixed to absolute */
+            position: absolute;
+            /* Changed from fixed to absolute */
             top: 30px;
             right: 30px;
             z-index: 100;
@@ -32,6 +75,10 @@
             flex-direction: column;
             align-items: center;
             cursor: pointer;
+            text-decoration: none;
+            /* reset anchor default */
+            color: inherit;
+            /* reset anchor default */
             transition: all 0.3s ease;
         }
 
@@ -48,7 +95,7 @@
             justify-content: center;
             transition: all 0.3s ease;
         }
-        
+
         .auth-icon-circle svg {
             width: 24px;
             height: 24px;
@@ -62,6 +109,11 @@
             color: white;
             margin-top: 8px;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            max-width: 90px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .auth-container:hover {
@@ -72,7 +124,88 @@
             background: rgba(255, 255, 255, 0.25);
             box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
         }
+
+        /* Profile avatar shown when logged in */
+        .profile-avatar {
+            display: none;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, oklch(0.55 0.22 260), oklch(0.45 0.28 300));
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border: 2px solid rgba(255, 255, 255, 0.45);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+            letter-spacing: 0;
+        }
+
+        /* When logged-in class is applied, switch to horizontal row */
+        .auth-container.logged-in {
+            flex-direction: row;
+            gap: 10px;
+            padding: 6px 14px 6px 6px;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+
+        .auth-container.logged-in .auth-text {
+            margin-top: 0;
+        }
+
+        .auth-container.logged-in .auth-icon-circle {
+            display: none;
+        }
+
+        .auth-container.logged-in .profile-avatar {
+            display: flex;
+        }
+
         /* END: Auth Button */
+
+
+        /* ── Toast Notification ────────────────────────────────────────── */
+        #toastNotification {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-120px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 28px;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            white-space: nowrap;
+            pointer-events: none;
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+                opacity 0.4s ease;
+            opacity: 0;
+        }
+
+        #toastNotification.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        #toastNotification .toast-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        /* ── End Toast ─────────────────────────────────────────────────── */
 
 
         /* START: New Expanding Navbar Styles 
@@ -86,83 +219,105 @@
             background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 20px; /* Outer container radius */
+            border-radius: 20px;
+            /* Outer container radius */
             padding: 10px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             display: flex;
         }
 
-        
+
 
         .expanding-navbar ul {
             display: flex;
             list-style: none;
-            gap: 10px; /* Space between nav items */
+            gap: 10px;
+            /* Space between nav items */
         }
 
         .nav-link {
             display: flex;
             align-items: center;
-            justify-content: flex-start; /* Aligns icon to the left */
-            width: 50px; /* Collapsed width - just for the icon */
+            justify-content: flex-start;
+            /* Aligns icon to the left */
+            width: 50px;
+            /* Collapsed width - just for the icon */
             height: 50px;
-            border-radius: 16px; /* Inner item radius */
+            border-radius: 16px;
+            /* Inner item radius */
             color: white;
             text-decoration: none;
             font-weight: 600;
             font-size: 14px;
-            overflow: hidden; /* This is key to hiding the text */
-            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1); /* Smooth transition */
-            padding: 0 13px; /* Centers the 24px icon in the 50px box */
-            gap: 10px; /* Space between icon and text when expanded */
+            overflow: hidden;
+            /* This is key to hiding the text */
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            /* Smooth transition */
+            padding: 0 13px;
+            /* Centers the 24px icon in the 50px box */
+            gap: 10px;
+            /* Space between icon and text when expanded */
             position: relative;
         }
 
         .nav-link svg {
             width: 24px;
             height: 24px;
-            flex-shrink: 0; /* Prevents icon from shrinking */
+            flex-shrink: 0;
+            /* Prevents icon from shrinking */
             stroke: white;
             stroke-width: 2;
         }
 
         .nav-link span {
-            white-space: nowrap; /* Prevents text from wrapping */
+            white-space: nowrap;
+            /* Prevents text from wrapping */
         }
-        
+
         /* This is the expanding animation from the video */
         .expanding-navbar li:hover .nav-link,
         .nav-link.active {
-            width: 150px; /* Expanded width to show text */
-            background: rgba(255, 255, 255, 0.25); /* Highlight effect */
+            width: 150px;
+            /* Expanded width to show text */
+            background: rgba(255, 255, 255, 0.25);
+            /* Highlight effect */
             box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
         }
-        
+
         /* Responsive for Navbar */
         @media (max-width: 768px) {
             .expanding-navbar {
                 /* On mobile, move it to the bottom */
                 top: auto;
                 bottom: 20px;
-                width: calc(100% - 40px); /* Full width with padding */
+                width: calc(100% - 40px);
+                /* Full width with padding */
                 left: 20px;
-                transform: none; /* Remove centering */
+                transform: none;
+                /* Remove centering */
             }
+
             .expanding-navbar ul {
                 width: 100%;
-                justify-content: space-around; /* Space items evenly */
+                justify-content: space-around;
+                /* Space items evenly */
                 gap: 5px;
             }
+
             .nav-link {
                 padding: 0;
                 width: 50px;
-                justify-content: center; /* Center the icon */
+                justify-content: center;
+                /* Center the icon */
             }
+
             .expanding-navbar li:hover .nav-link,
             .nav-link.active {
-                width: 50px; /* Don't expand on mobile hover, just show active */
+                width: 50px;
+                /* Don't expand on mobile hover, just show active */
             }
         }
+
         /* END: New Expanding Navbar Styles 
         */
 
@@ -195,9 +350,10 @@
         .home-content {
             max-width: 900px;
             animation: fadeInUp 1.2s ease-out;
-            margin-top: 15vh; /* Pushed down from 5vh to 15vh */
+            margin-top: 15vh;
+            /* Pushed down from 5vh to 15vh */
         }
- 
+
         .home-title {
             font-size: clamp(42px, 8vw, 72px);
             font-weight: 800;
@@ -221,7 +377,7 @@
             display: inline-block;
             position: relative;
             color: white;
-            text-shadow: 
+            text-shadow:
                 0 0 10px rgba(255, 255, 255, 1),
                 0 0 20px rgba(255, 255, 255, 0.8),
                 0 0 30px rgba(255, 255, 255, 0.6),
@@ -275,6 +431,7 @@
                 transform: translateY(0);
                 opacity: 1;
             }
+
             100% {
                 transform: translateY(20px);
                 opacity: 0;
@@ -282,12 +439,19 @@
         }
 
         @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
                 transform: translateX(-50%) translateY(0);
             }
+
             40% {
                 transform: translateX(-50%) translateY(-10px);
             }
+
             60% {
                 transform: translateX(-50%) translateY(-5px);
             }
@@ -300,11 +464,13 @@
             top: 50%;
             right: 30px;
             transform: translateY(-50%);
-            z-index: 99; /* Below navbar (100) */
+            z-index: 99;
+            /* Below navbar (100) */
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 25px; /* Space between icons */
+            gap: 25px;
+            /* Space between icons */
         }
 
         .social-link {
@@ -316,7 +482,8 @@
         }
 
         .social-link:hover {
-            transform: scale(1.05); /* Slight grow on hover */
+            transform: scale(1.05);
+            /* Slight grow on hover */
         }
 
         .social-icon-circle {
@@ -356,6 +523,7 @@
             margin-top: 8px;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
+
         /* END: New Social Media Links
         */
 
@@ -402,7 +570,8 @@
             display: grid;
             grid-template-columns: 1fr 2fr;
             gap: 40px;
-            align-items: stretch; /* <-- It should look like this */
+            align-items: stretch;
+            /* <-- It should look like this */
         }
 
         /* Left Panel - Cube */
@@ -495,7 +664,9 @@
             margin-bottom: 8px;
         }
 
-        input, select, textarea {
+        input,
+        select,
+        textarea {
             padding: 14px 20px;
             border: 2px solid oklch(0.3 0.18 250 / 0.2);
             border-radius: 15px;
@@ -505,7 +676,9 @@
             font-family: inherit;
         }
 
-        input:focus, select:focus, textarea:focus {
+        input:focus,
+        select:focus,
+        textarea:focus {
             outline: none;
             border-color: oklch(0.3 0.18 250);
             background: white;
@@ -529,30 +702,30 @@
         /* START: New Team Section Styles 
         */
         .team-section {
-            background: transparent; /* Changed from light lavender to transparent */
-            display: block; /* Override flex to allow normal page flow */
+            background: transparent;
+            display: block;
             padding: 100px 20px;
-            min-height: auto; /* Not full screen */
+            min-height: auto;
         }
 
         .team-container {
             max-width: 1100px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: 300px 1fr; /* Title on left, grid on right */
+            grid-template-columns: 300px 1fr;
             gap: 60px;
         }
 
         .team-title {
             font-size: clamp(36px, 6vw, 56px);
             font-weight: 800;
-            color: white; /* Changed from dark purple */
+            color: white;
             line-height: 1.3;
         }
 
         .team-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr; /* Changed from 1fr 1fr */
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 50px 40px;
         }
 
@@ -562,57 +735,142 @@
             transform: translateY(30px);
             transition: all 0.8s ease-out;
         }
-        
+
         .team-card.visible {
             opacity: 1;
             transform: translateY(0);
         }
 
-        .team-image-placeholder {
+        /* UPDATED: Targeted the img tag directly */
+        .team-image {
             width: 100%;
-            aspect-ratio: 1 / 1; /* Square */
-            background: rgba(255, 255, 255, 0.15); /* Changed to glassmorphism style */
+            aspect-ratio: 1 / 1;
+            /* Forces the image to be a square */
+            object-fit: cover;
+            /* Crops the image so it doesn't stretch */
             border-radius: 16px;
+            /* Rounded corners */
             margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.3); /* Changed to glassmorphism style */
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            /* Glass border effect */
+            display: block;
         }
 
         .team-name {
             font-size: 22px;
             font-weight: 700;
-            color: white; /* Changed from dark purple */
+            color: white;
             margin-bottom: 5px;
         }
 
         .team-role {
             font-size: 15px;
             font-weight: 600;
-            color: rgba(255, 255, 255, 0.9); /* Changed from muted purple */
+            color: rgba(255, 255, 255, 0.9);
             margin-bottom: 12px;
         }
 
         .team-description {
             font-size: 14px;
-            color: rgba(255, 255, 255, 0.85); /* Changed from dark purple */
+            color: rgba(255, 255, 255, 0.85);
             line-height: 1.6;
         }
+
         /* END: New Team Section Styles 
         */
 
+        /* AI Chatbot Icon */
+        .ai-chatbot-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 100;
+
+            /* Glassmorphism Style */
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+
+            /* Icon Styling */
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .ai-chatbot-button:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .ai-chatbot-button svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        /* Pulse animation for attention */
+        .ai-chatbot-button::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1.3);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .ai-chatbot-button {
+                bottom: 90px;
+                /* Move up to avoid bottom navbar */
+                right: 20px;
+                width: 50px;
+                height: 50px;
+            }
+
+            .ai-chatbot-button svg {
+                width: 24px;
+                height: 24px;
+            }
+        }
+
         /* START: New Contact Section Styles */
         .contact-section {
-             /* This section uses .page-section for its base layout */
-             min-height: auto; /* Not full screen */
-             padding-bottom: 100px;
+            /* This section uses .page-section for its base layout */
+            min-height: auto;
+            /* Not full screen */
+            padding-bottom: 100px;
         }
+
         .contact-container {
             max-width: 900px;
             width: 100%;
-            opacity: 0; 
+            opacity: 0;
             transform: translateY(30px);
             transition: all 1s ease-out;
         }
-        
+
         .contact-container.visible {
             opacity: 1;
             transform: translateY(0);
@@ -659,30 +917,47 @@
             transform: translateY(-3px);
             box-shadow: 0 8px 25px oklch(0.3 0.18 250 / 0.6);
         }
-        
+
         /* NEW: Phone number input group style */
         .phone-input-group {
             display: flex;
             gap: 10px;
         }
+
         .phone-input-group .phone-prefix {
-            flex: 0 0 130px; /* Don't grow, don't shrink, set a base width */
+            flex: 0 0 130px;
+            /* Don't grow, don't shrink, set a base width */
         }
+
         .phone-input-group .phone-number {
-            flex: 1; /* Grow to fill space */
+            flex: 1;
+            /* Grow to fill space */
         }
+
         /* END: New Contact Section Styles */
 
 
         /* Animations */
         @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
         }
 
         @keyframes rotate3d {
-            0% { transform: rotateY(0deg) rotateX(0deg); }
-            100% { transform: rotateY(360deg) rotateX(360deg); }
+            0% {
+                transform: rotateY(0deg) rotateX(0deg);
+            }
+
+            100% {
+                transform: rotateY(360deg) rotateX(360deg);
+            }
         }
 
         @keyframes slideUp {
@@ -690,6 +965,7 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -701,11 +977,119 @@
                 opacity: 0;
                 transform: translateY(40px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
+
+        .favorite-btn {
+            cursor: pointer;
+            font-size: 20px;
+            margin-left: 10px;
+            color: gray;
+        }
+
+        .favorite-btn.active {
+            color: gold;
+        }
+
+
+        /* Update this in your index.html <style> block */
+        .view-fav-btn {
+            display: none;
+            /* Keep this as none by default */
+            position: fixed;
+            bottom: 100px;
+            left: 30px;
+            z-index: 100;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(20px);
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .view-fav-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-3px);
+        }
+
+        .view-fav-btn span {
+            margin-right: 6px;
+        }
+
+        /* Modal Background */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        /* Modal Content */
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 20px;
+            width: 50%;
+            border-radius: 12px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .close-btn {
+            float: right;
+            font-size: 25px;
+            cursor: pointer;
+        }
+
+        /* Favorite Cards */
+        .favorite-container {
+            margin-top: 15px;
+        }
+
+        .fav-card {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .remove-btn {
+            background: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
 
         /* Glass orbs floating */
         .glass-orb {
@@ -743,12 +1127,16 @@
         }
 
         @keyframes floatOrb {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translate(0, 0) scale(1);
             }
+
             33% {
                 transform: translate(50px, -50px) scale(1.1);
             }
+
             66% {
                 transform: translate(-50px, 50px) scale(0.9);
             }
@@ -775,9 +1163,11 @@
                 grid-template-columns: 1fr;
                 gap: 40px;
             }
+
             .team-title {
                 text-align: center;
             }
+
             /* Added rule for team grid on tablets */
             .team-grid {
                 grid-template-columns: 1fr 1fr;
@@ -838,7 +1228,9 @@
                 height: 60px;
             }
 
-            input, select, textarea {
+            input,
+            select,
+            textarea {
                 padding: 12px 16px;
                 font-size: 14px;
             }
@@ -860,14 +1252,17 @@
                 top: 20px;
                 right: 20px;
             }
+
             .auth-icon-circle {
                 width: 40px;
                 height: 40px;
             }
+
             .auth-icon-circle svg {
                 width: 20px;
                 height: 20px;
             }
+
             .auth-text {
                 font-size: 12px;
             }
@@ -876,13 +1271,16 @@
             .team-section {
                 padding: 80px 20px;
             }
+
             .team-grid {
                 grid-template-columns: 1fr;
                 gap: 40px;
             }
+
             .team-title {
                 font-size: 32px;
             }
+
             .team-name {
                 font-size: 20px;
             }
@@ -891,11 +1289,12 @@
             .contact-title {
                 font-size: 24px;
             }
+
             .contact-subtitle {
                 font-size: 16px;
             }
 
-             /* Move scroll indicator up on mobile to avoid navbar */
+            /* Move scroll indicator up on mobile to avoid navbar */
             .scroll-indicator {
                 bottom: 90px;
             }
@@ -925,20 +1324,23 @@
             .left-panel {
                 padding: 25px 15px;
             }
+
             /* Inside @media (max-width: 768px) */
-        .scroll-to-top {
-            bottom: 90px; /* Move up to avoid bottom navbar */
-            left: 20px;
-            width: 40px;
-            height: 40px;
-        }
-        .scroll-to-top svg {
-            width: 20px;
-            height: 20px;
-        }
+            .scroll-to-top {
+                bottom: 90px;
+                /* Move up to avoid bottom navbar */
+                left: 20px;
+                width: 40px;
+                height: 40px;
+            }
+
+            .scroll-to-top svg {
+                width: 20px;
+                height: 20px;
+            }
         }
 
-    /* START: New Footer Styles 
+        /* START: New Footer Styles 
         */
         .footer-section {
             position: relative;
@@ -1030,15 +1432,17 @@
         .footer-bottom a:hover {
             color: white;
         }
+
         /* END: New Footer Styles 
         */
         /* START: Scroll to Top Button Styles */
         .scroll-to-top {
             position: fixed;
             bottom: 30px;
-            left: 30px; /* Positioned bottom-left */
+            left: 30px;
+            /* Positioned bottom-left */
             z-index: 100;
-            
+
             /* Glassmorphism Style */
             width: 50px;
             height: 50px;
@@ -1047,14 +1451,14 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
             backdrop-filter: blur(20px);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            
+
             /* Icon Styling */
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            
+
             /* Hide by default */
             opacity: 0;
             pointer-events: none;
@@ -1072,22 +1476,188 @@
             background: rgba(255, 255, 255, 0.25);
             transform: scale(1.1);
         }
-        
+
         .scroll-to-top svg {
             width: 24px;
             height: 24px;
         }
-        /* END: Scroll to Top Button Styles */
-        
+
+        .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    align-items: center;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.pricing-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 30px;
+    padding: 40px;
+    text-align: center;
+    color: white;
+    transition: all 0.4s ease;
+    position: relative;
+}
+
+.pricing-card.featured {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid oklch(0.55 0.22 260); /* Brighter blue border */
+    transform: scale(1.05);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+}
+
+.popular-tag {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: oklch(0.55 0.22 260);
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.plan-type {
+    font-size: 18px;
+    font-weight: 600;
+    opacity: 0.8;
+    margin-bottom: 10px;
+}
+
+.plan-price {
+    font-size: 56px;
+    font-weight: 800;
+    margin-bottom: 25px;
+}
+
+.plan-price span {
+    font-size: 24px;
+    vertical-align: super;
+    margin-right: 5px;
+}
+
+.plan-features {
+    list-style: none;
+    text-align: left;
+    margin-bottom: 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
+}
+
+.plan-features li {
+    margin-bottom: 15px;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.plan-features li::before {
+    content: "✓";
+    color: oklch(0.55 0.22 260);
+    font-weight: bold;
+}
+
+.plan-btn {
+    width: 100%;
+    padding: 15px;
+    border-radius: 50px;
+    border: none;
+    background: white;
+    color: oklch(0.3 0.18 250);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.plan-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 1024px) {
+    .pricing-card.featured {
+        transform: scale(1); /* Reset scale on mobile for better stacking */
+    }
+}
+
+/* Define the Floating Keyframes */
+@keyframes pricingFloat {
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-15px);
+    }
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+/* Apply the animation to the cards */
+.pricing-card {
+    /* Existing styles remain... */
+    animation: pricingFloat 6s ease-in-out infinite;
+}
+
+/* Featured card adjustment (preserves the 1.05 scale while floating) */
+@keyframes featuredFloat {
+    0% {
+        transform: scale(1.05) translateY(0px);
+    }
+    50% {
+        transform: scale(1.05) translateY(-20px);
+    }
+    100% {
+        transform: scale(1.05) translateY(0px);
+    }
+}
+
+.pricing-card.featured {
+    animation: featuredFloat 6s ease-in-out infinite;
+}
+
+/* Stagger the animations so they don't move in perfect sync */
+.pricing-grid .pricing-card:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.pricing-grid .pricing-card:nth-child(2) {
+    animation-delay: 1.5s;
+}
+
+.pricing-grid .pricing-card:nth-child(3) {
+    animation-delay: 3s;
+}
+
+/* Pause animation on hover for better user interaction */
+.pricing-card:hover {
+    animation-play-state: paused;
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+}
     </style>
 </head>
+
 <body>
+
+    <div class="main-logo-container">
+    <img src="src/logo.png" alt="ceylonHS Logo">
+</div>
 
     <nav class="expanding-navbar">
         <ul>
             <li>
                 <a href="#home" class="nav-link active">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                         <polyline points="9 22 9 12 15 12 15 22"></polyline>
                     </svg>
@@ -1096,7 +1666,8 @@
             </li>
             <li>
                 <a href="#finder" class="nav-link">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
@@ -1105,7 +1676,8 @@
             </li>
             <li>
                 <a href="#team" class="nav-link">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                         <circle cx="9" cy="7" r="4"></circle>
                         <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -1116,27 +1688,49 @@
             </li>
             <li>
                 <a href="#contact" class="nav-link">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                         <polyline points="22 6 12 13 2 6"></polyline>
                     </svg>
                     <span>Contact us</span>
                 </a>
             </li>
+            <li>
+                <a href="#Pricing" class="nav-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                        <line x1="1" y1="10" x2="23" y2="10"></line>
+                    </svg>
+                    <span>Pricing</span>
+                </a>
+            </li>
         </ul>
     </nav>
-    <div class="auth-container" id="authButton">
-        <div class="auth-icon-circle">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Auth button: always href="log-in.html" by default; module overrides for logout -->
+    <a href="log-in.html" class="auth-container" id="authButton">
+        <div class="auth-icon-circle" id="authIconCircle">
+            <!-- Default: person icon (not logged in) -->
+            <svg id="authIconPerson" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
             </svg>
         </div>
-        <span class="auth-text">Register/Log In</span>
+        <!-- Profile avatar (shown when logged in) -->
+        <span class="profile-avatar" id="profileAvatar"></span>
+        <span class="auth-text" id="authText">Register/Log In</span>
+    </a>
+
+    <!-- Toast Notification -->
+    <div id="toastNotification">
+        <span class="toast-icon" id="toastIcon">🎉</span>
+        <span id="toastMessage">Welcome!</span>
     </div>
 
     <div id="canvas-container"></div>
-    
+
     <div class="glass-orb orb-1"></div>
     <div class="glass-orb orb-2"></div>
     <div class="glass-orb orb-3"></div>
@@ -1153,33 +1747,42 @@
                 </span>
             </h1>
             <p class="home-subtitle">Get instant, accurate classification<br>for your import/export goods.</p>
-            </div>
+        </div>
         <div class="scroll-indicator"></div>
     </section>
+
+
 
     <div class="social-links-container">
         <a href="https://facebook.com" class="social-link" target="_blank" rel="noopener noreferrer">
             <div class="social-icon-circle">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
                 </svg>
             </div>
             <span class="social-text">Facebook</span>
         </a>
-        
+
         <a href="https://twitter.com" class="social-link" target="_blank" rel="noopener noreferrer">
             <div class="social-icon-circle">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                        d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z">
+                    </path>
                 </svg>
             </div>
             <span class="social-text">Twitter</span>
         </a>
-        
+
         <a href="https://youtube.com" class="social-link" target="_blank" rel="noopener noreferrer">
             <div class="social-icon-circle">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2A29 29 0 0 0 23 11.75a29 29 0 0 0-.46-5.33z"></path>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                        d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2A29 29 0 0 0 23 11.75a29 29 0 0 0-.46-5.33z">
+                    </path>
                     <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon>
                 </svg>
             </div>
@@ -1191,19 +1794,23 @@
         <div class="finder-container">
             <div class="finder-header" id="finderHeader">
                 <h2 class="finder-title">Navigate the Harmonized System with ease.</h2>
-                <p class="finder-subtitle">Automate your HS code classifications to improve efficiency and eliminate delays.</p>
+                <p class="finder-subtitle">Automate your HS code classifications to improve efficiency and eliminate
+                    delays.</p>
             </div>
 
             <div class="content-grid">
                 <div class="left-panel">
                     <div class="cube-icon">
                         <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z" stroke="white" stroke-width="2" fill="rgba(255,255,255,0.2)"/>
-                            <path d="M50 10 L50 50 M50 50 L90 30 M50 50 L10 30 M50 50 L50 90" stroke="white" stroke-width="2"/>
+                            <path d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z" stroke="white" stroke-width="2"
+                                fill="rgba(255,255,255,0.2)" />
+                            <path d="M50 10 L50 50 M50 50 L90 30 M50 50 L10 30 M50 50 L50 90" stroke="white"
+                                stroke-width="2" />
                         </svg>
                     </div>
                     <h3>Classify your item.</h3>
-                    <p>Enter your product details to find the HS code. The more specific you are, the more precise the result will be.</p>
+                    <p>Enter your product details to find the HS code. The more specific you are, the more precise the
+                        result will be.</p>
                 </div>
 
                 <div class="form-panel">
@@ -1331,71 +1938,66 @@
 
                         <div class="form-group full-width">
                             <label>Product Details</label>
-                            <textarea id="productDetails" name="productDetails" placeholder="Enter product details....." required></textarea>
+                            <textarea id="productDetails" name="productDetails" placeholder="Enter product details....."
+                                required></textarea>
                         </div>
-                        
-                        <button type="submit" class="submit-button">Search HS Code</button>
+
+                        <button type="submit" class="submit-button" id="hsFinderSearchBtn">Search HS Code</button>
                     </form>
                 </div>
             </div>
         </div>
     </section>
 
+    
     <section class="page-section team-section" id="team">
         <div class="team-container">
             <h2 class="team-title">Meet the Minds Behind our Mission.</h2>
-            
+
             <div class="team-grid">
                 <div class="team-card" id="teamCard1">
-                    <div class="team-image-placeholder"></div>
+                    <img src="src/Dulshan.jpg" alt="Dulshan" class="team-image">
                     <h3 class="team-name">Dulshan</h3>
-                    <p class="team-role">Product Specialist</p>
-                    <p class="team-description">Our Product Specialist has extensive knowledge of HS codes and helps ensure accurate product classifications.</p>
                 </div>
-                
+
                 <div class="team-card" id="teamCard2">
-                    <div class="team-image-placeholder"></div>
+                    <img src="src/thevinu[1].jpg" alt="Thevinu" class="team-image">
                     <h3 class="team-name">Thevinu</h3>
-                    <p class="team-role">Customer Support Lead</p>
-                    <p class="team-description">Our Customer Support Lead is dedicated to providing quick and helpful assistance to build trusted relationships.</p>
                 </div>
 
                 <div class="team-card" id="teamCard3">
-                    <div class="team-image-placeholder"></div>
+                    <img src="src/thamadi.jpg" alt="Thamadi" class="team-image">
                     <h3 class="team-name">Thamadi</h3>
-                    <p class="team-role">Data Analyst</p>
-                    <p class="team-description">The Data Analyst continuously updates our database to ensure users get the latest HS code information.</p>
                 </div>
 
                 <div class="team-card" id="teamCard4">
-                    <div class="team-image-placeholder"></div>
+                    <img src="src/chanugi.jpg" alt="Chanugi" class="team-image">
                     <h3 class="team-name">Chanugi</h3>
-                    <p class="team-role">Software Developer</p>
-                    <p class="team-description">Our Software Developer designs intuitive features to make HS code searching effortless.</p>
                 </div>
-                
+
                 <div class="team-card" id="teamCard5">
-                    <div class="team-image-placeholder"></div>
+                    <img src="src/muditha.jpg" alt="Muditha" class="team-image">
                     <h3 class="team-name">Muditha</h3>
-                    <p class="team-role">UX/UI Designer</p>
-                    <p class="team-description">Our designer crafts user-friendly interfaces to ensure a seamless and intuitive experience for all users.</p>
                 </div>
-                
+
                 <div class="team-card" id="teamCard6">
-                    <div class="team-image-placeholder"></div>
+                    <img src="src/yasmi.jpg" alt="Yasmi" class="team-image">
                     <h3 class="team-name">Yasmi</h3>
-                    <p class="team-role">QA Engineer</p>
-                    <p class="team-description">Our QA Engineer rigorously tests every feature to maintain the highest standard of quality and accuracy.</p>
                 </div>
             </div>
         </div>
+        </div>
     </section>
+
+
     <section class="page-section contact-section" id="contact">
         <div class="contact-container" id="contactContainer">
 
             <div class="contact-header">
                 <h1 class="contact-title">Your success in global trade is our priority.</h1>
-                <p class="contact-subtitle">Our expert support team is dedicated to providing the answers you need for smooth, compliant customs clearance. Have a question or need assistance? Fill out the form below to connect with us.</p>
+                <p class="contact-subtitle">Our expert support team is dedicated to providing the answers you need for
+                    smooth, compliant customs clearance. Have a question or need assistance? Fill out the form below to
+                    connect with us.</p>
             </div>
 
             <div class="form-panel">
@@ -1628,7 +2230,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="form-group full-width">
                         <label>Message</label>
                         <textarea placeholder="How can we help you?"></textarea>
@@ -1637,11 +2239,87 @@
                     <button type="submit" class="submit-button">Submit</button>
                 </form>
             </div>
+
         </div>
     </section>
 
+    <section class="page-section pricing-section" id="Pricing">
+    <div class="container" style="display: block;">
+        <div class="finder-header visible" style="margin-bottom: 50px;">
+            <h2 class="finder-title">Simple, transparent pricing.</h2>
+            <p class="finder-subtitle">Choose the plan that best fits your search volume and business needs.</p>
+        </div>
+
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <div class="plan-type">Starter</div>
+                <div class="plan-price"><span>$</span>3</div>
+                <ul class="plan-features">
+                    <li>10 Search results per month</li>
+                    <li>Basic HS code matching</li>
+                    <li>Email support</li>
+                </ul>
+                <button class="plan-btn">Choose Starter</button>
+            </div>
+
+            <div class="pricing-card featured">
+                <div class="popular-tag">Most Popular</div>
+                <div class="plan-type">Business</div>
+                <div class="plan-price"><span>$</span>5</div>
+                <ul class="plan-features">
+                    <li>25 Search results per month</li>
+                    <li>AI-Enhanced accuracy</li>
+                    <li>Priority search speed</li>
+                    <li>Export search history</li>
+                </ul>
+                <button class="plan-btn">Choose Business</button>
+            </div>
+
+            <div class="pricing-card">
+                <div class="plan-type">Enterprise</div>
+                <div class="plan-price"><span>$</span>9</div>
+                <ul class="plan-features">
+                    <li>50 Search results per month</li>
+                    <li>Dedicated support</li>
+                    <li>Custom API Access</li>
+                    <li>Bulk classification</li>
+                </ul>
+                <button class="plan-btn">Choose Enterprise</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+    <div id="favoritesModal" class="modal">
+
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeFavoritesModal()">&times;</span>
+
+            <h2>⭐ Your Favorite HS Codes</h2>
+
+            <input type="text" id="favSearch" placeholder="Search in favorites..." onkeyup="filterFavorites()">
+
+            <div id="favoriteList" class="favorite-container"></div>
+        </div>
+
+    </div>
+
+
+    <!-- AI Chatbot Button -->
+    <button id="aiChatbotBtn" class="ai-chatbot-button" title="AI Assistant">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            <path d="M8 10h.01"></path>
+            <path d="M12 10h.01"></path>
+            <path d="M16 10h.01"></path>
+        </svg>
+    </button>
+
     <button id="scrollTopBtn" class="scroll-to-top" title="Go to top">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="19" x2="12" y2="5"></line>
             <polyline points="5 12 12 5 19 12"></polyline>
         </svg>
@@ -1653,19 +2331,62 @@
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-        
+
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         document.getElementById('canvas-container').appendChild(renderer.domElement);
 
         camera.position.z = 5;
 
+        // Load favorites from localStorage
+        let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+
+        // Toggle favorite function
+        function toggleFavorite(element) {
+
+            let parent = element.parentElement;
+            let hsCode = parent.getAttribute("data-code");
+
+            if (favorites.includes(hsCode)) {
+                // Remove from favorites
+                favorites = favorites.filter(code => code !== hsCode);
+                element.classList.remove("active");
+                element.innerHTML = "☆";
+            } else {
+                // Add to favorites
+                favorites.push(hsCode);
+                element.classList.add("active");
+                element.innerHTML = "★";
+            }
+
+
+
+            // Save to localStorage
+            localStorage.setItem("favorites", JSON.stringify(favorites));
+        }
+
+        window.onload = function () {
+
+            let favoriteButtons = document.querySelectorAll(".hs-result");
+
+            favoriteButtons.forEach(item => {
+                let hsCode = item.getAttribute("data-code");
+                let star = item.querySelector(".favorite-btn");
+
+                if (favorites.includes(hsCode)) {
+                    star.classList.add("active");
+                    star.innerHTML = "★";
+                }
+            });
+        };
+
+
         // Create floating particles
         const particlesGeometry = new THREE.BufferGeometry();
         const particlesCount = 800;
         const posArray = new Float32Array(particlesCount * 3);
 
-        for(let i = 0; i < particlesCount * 3; i++) {
+        for (let i = 0; i < particlesCount * 3; i++) {
             posArray[i] = (Math.random() - 0.5) * 15;
         }
 
@@ -1766,23 +2487,6 @@
 
         animate();
 
-        // Handle resize
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        // Form interactions
-        document.querySelectorAll('input, select, textarea').forEach(element => {
-            element.addEventListener('focus', function() {
-                this.style.transform = 'scale(1.02)';
-            });
-            
-            element.addEventListener('blur', function() {
-                this.style.transform = 'scale(1)';
-            });
-        });
 
         // Smooth scroll for nav links
         document.querySelectorAll('.nav-link').forEach(anchor => {
@@ -1806,7 +2510,7 @@
                 block: 'start'
             });
         });
-        
+
         // Intersection Observer Options
         const observerOptions = {
             threshold: 0.2, // Trigger when 20% of the element is visible
@@ -1815,7 +2519,7 @@
 
         // Scroll animation for finder header
         const finderHeader = document.getElementById('finderHeader');
-        
+
         const headerObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -1830,7 +2534,7 @@
 
         // Scroll animation for new team cards
         const teamCards = document.querySelectorAll('.team-card');
-        
+
         const cardObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach((entry, index) => {
                 if (entry.isIntersecting) {
@@ -1849,7 +2553,7 @@
 
         // Scroll animation for new contact section
         const contactContainer = document.getElementById('contactContainer');
-        
+
         const contactObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -1864,30 +2568,23 @@
         }
 
         /* REMOVED: Auth button interactions script 
-        */ 
+        */
 
-        // HS Finder Form Submission
+        // Handle HS Finder Form Submission
         const hsFinderForm = document.getElementById('hsFinderForm');
         if (hsFinderForm) {
-            hsFinderForm.addEventListener('submit', (e) => {
+            hsFinderForm.addEventListener('submit', function (e) {
                 e.preventDefault();
-                
-                // Collect form data
+
+                // Get values
                 const email = document.getElementById('email').value;
                 const madeIn = document.getElementById('madeIn').value;
                 const shipTo = document.getElementById('shipTo').value;
                 const itemPrice = document.getElementById('itemPrice').value;
                 const currency = document.getElementById('currency').value;
-                const productDetails = document.getElementById('productDetails').value.trim();
-                
-                // Check if product details is filled
-                if (!productDetails) {
-                    alert('Please enter product details to search.');
-                    document.getElementById('productDetails').focus();
-                    return;
-                }
-                
-                // Create URL with query parameters
+                const productDetails = document.getElementById('productDetails').value;
+
+                // Construct URL parameters
                 const params = new URLSearchParams({
                     email: email,
                     madeIn: madeIn,
@@ -1896,25 +2593,27 @@
                     currency: currency,
                     query: productDetails
                 });
-                
+
                 // Redirect to results page
-                window.location.href = '/search-results.html?' + params.toString();
+                window.location.href = 'search-results.html?' + params.toString();
             });
         }
-        
+
         // Form submission simulation for Contact Us
-        const contactForm = document.querySelector('#contact .submit-button');
-        if (contactForm) {
-            contactForm.addEventListener('click', (e) => {
-                e.preventDefault();
-                
+        const contactSubmitBtn = document.querySelector('#contact .submit-button');
+        if (contactSubmitBtn) {
+            contactSubmitBtn.addEventListener('click', (e) => {
+                e.preventDefault(); // Prevent actual form submission
+
+                // Add click animation
                 const btn = e.target;
                 btn.style.transform = 'scale(0.95)';
                 setTimeout(() => {
                     btn.style.transform = '';
                 }, 200);
-                
-                alert('Form submitted (simulation)!');
+
+                // You can add your form submission logic here
+                alert('Contact form submitted (simulation)!');
             });
         }
 
@@ -1933,7 +2632,7 @@
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     const id = entry.target.getAttribute('id');
-                    
+
                     // Remove 'active' from all links
                     navLinks.forEach(link => {
                         link.classList.remove('active');
@@ -1952,20 +2651,63 @@
             navObserver.observe(section);
         });
 
+
+        function showFavorites() {
+
+            let container = document.getElementById("favoriteList");
+            container.innerHTML = "";
+
+            if (favorites.length === 0) {
+                container.innerHTML = "<p>No favorites added yet.</p>";
+                return;
+            }
+
+            favorites.forEach(code => {
+
+                container.innerHTML += `
+            <div class="fav-card">
+                <span>${code}</span>
+                <button class="remove-btn" onclick="removeFavorite('${code}')">
+                    Remove
+                </button>
+            </div>
+        `;
+            });
+        }
+
+
+        function openFavoritesModal() {
+            document.getElementById("favoritesModal").style.display = "block";
+            showFavorites();
+        }
+
+        function closeFavoritesModal() {
+            document.getElementById("favoritesModal").style.display = "none";
+        }
+
+
+
         // 
-// START: Auth button link
-// 
-const authButton = document.getElementById('authButton');
-if (authButton) {
-    authButton.addEventListener('click', function() {
-        // This links to your new login.html page
-        window.location.href = 'log-in.html'; 
-    });
-}
-// 
-// END: Auth button link
-//
-       // 
+        // AI Chatbot Button Script
+        // 
+        const aiChatbotBtn = document.getElementById('aiChatbotBtn');
+
+        if (aiChatbotBtn) {
+            aiChatbotBtn.addEventListener('click', () => {
+                // Your chatbot logic will go here
+                console.log('AI Chatbot clicked!');
+                alert('AI Chatbot will open here');
+            });
+        }
+        // 
+        // END: AI Chatbot Button Script
+        //
+
+        // Auth button behaviour is handled by the Firebase module script below.
+
+        // ─── AUTH-GATED FAVORITES VISIBILITY ────────────────────────────────────────
+        // NOTE: This is handled by the Firebase module script below. Placeholder removed.
+        // 
         // START: Scroll to Top Button Script
         // 
         const scrollTopBtn = document.getElementById('scrollTopBtn');
@@ -1993,17 +2735,115 @@ if (authButton) {
         //
 
     </script>
+
+    <!-- ═══ FIREBASE AUTH MODULE ════════════════════════════════════════════════ -->
+    <!-- Controls: auth button state, favorites visibility, session sync           -->
+    <script type="module">
+        import { auth } from './firebase-config.js';
+        import {
+            onAuthStateChanged,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        const authButton = document.getElementById('authButton');
+        const authText = document.getElementById('authText');
+        const profileAvatar = document.getElementById('profileAvatar');
+        const favBtn = document.getElementById('favMenuBtn');
+        const favoritesModal = document.getElementById('favoritesModal');
+
+        // ── Toast helper ─────────────────────────────────────────────────────────
+        function showToast(message, icon) {
+            const toast = document.getElementById('toastNotification');
+            const msgEl = document.getElementById('toastMessage');
+            const iconEl = document.getElementById('toastIcon');
+            if (!toast) return;
+            msgEl.textContent = message;
+            iconEl.textContent = icon || '✅';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 4000);
+        }
+
+        // ── Auth state listener ──────────────────────────────────────────────────
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // ── LOGGED IN ──────────────────────────────────────────────────
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userEmail', user.email || '');
+
+                // Prefer displayName set during registration, else use email prefix
+                const displayName = user.displayName || localStorage.getItem('userName') || (user.email ? user.email.split('@')[0] : 'User');
+                const initial = displayName.charAt(0).toUpperCase();
+
+                // Profile avatar — show initial letter
+                if (profileAvatar) profileAvatar.textContent = initial;
+
+                // Switch button to horizontal logged-in layout
+                authText.textContent = displayName.split(' ')[0]; // first name only
+                authButton.classList.add('logged-in');
+
+                // Show favorites UI
+                if (favBtn) favBtn.style.display = 'flex';
+                document.querySelectorAll('.favorite-btn').forEach(btn => {
+                    btn.style.display = 'inline';
+                });
+
+                // Show pending toast (set by login/register page before redirect)
+                const pendingToast = sessionStorage.getItem('toastMsg');
+                const pendingIcon = sessionStorage.getItem('toastIcon') || '✅';
+                if (pendingToast) {
+                    sessionStorage.removeItem('toastMsg');
+                    sessionStorage.removeItem('toastIcon');
+                    setTimeout(() => showToast(pendingToast, pendingIcon), 600);
+                }
+
+            } else {
+                // ── NOT LOGGED IN ──────────────────────────────────────────────
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('userEmail');
+                localStorage.removeItem('userName');
+
+                authText.textContent = 'Register/Log In';
+                authButton.classList.remove('logged-in');
+                if (profileAvatar) profileAvatar.textContent = '';
+
+                // Hide favorites UI
+                if (favBtn) favBtn.style.display = 'none';
+                document.querySelectorAll('.favorite-btn').forEach(btn => {
+                    btn.style.display = 'none';
+                });
+                if (favoritesModal) favoritesModal.remove();
+            }
+        });
+
+        // ── Auth button click: logout or go to login ─────────────────────────────
+        // (The <a> tag handles the basic redirect; we only override when logged in)
+        if (authButton) {
+            authButton.addEventListener('click', async (e) => {
+                const { currentUser } = auth;
+                if (currentUser) {
+                    e.preventDefault();           // stop the <a> from navigating
+                    await signOut(auth);
+                    showToast('You have been signed out.', '👋');
+                }
+                // else: let the href="log-in.html" navigate naturally
+            });
+        }
+    </script>
+    <!-- ═══ END: FIREBASE AUTH MODULE ══════════════════════════════════════════ -->
     <footer class="footer-section">
         <div class="footer-container">
             <div class="footer-main">
                 <div class="footer-logo">
-                    <div class="logo-placeholder">LOGO</div>
-                </div>
+    <div class="logo-placeholder" style="background: transparent; border: none;">
+        <img src="src/logo.png" alt="ceylonHS Logo" style="width: 100%; height: 100%; object-fit: contain;">
+    </div>
+</div>
 
                 <div class="footer-column">
                     <h4 class="footer-heading">Related Links</h4>
                     <ul class="footer-links">
-                        <li><a href="https://www.customs.gov.lk" target="_blank" rel="noopener noreferrer">https://www.customs.gov.lk</a></li>
+                        <li><a href="https://www.customs.gov.lk" target="_blank"
+                                rel="noopener noreferrer">https://www.customs.gov.lk</a></li>
                     </ul>
                 </div>
 
@@ -2024,11 +2864,12 @@ if (authButton) {
 
             <div class="footer-bottom">
                 <p>
-                    COPYRIGHT © 2025 SRI LANKA CUSTOMS. All Rights Reserved. 
+                    COPYRIGHT © 2025 SRI LANKA CUSTOMS. All Rights Reserved.
                     <a href="#">Privacy Policy</a> and <a href="#">Terms of use</a>.
                 </p>
             </div>
         </div>
     </footer>
 </body>
+
 </html>
