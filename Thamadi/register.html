@@ -556,11 +556,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
     <script type="module">
-    // Initialize EmailJS globally with your confirmed Public Key
-    emailjs.init({
-      publicKey: "iM5wGDDykpN8fcvno",
-    });
-
+        // Initialize EmailJS globally at the start
+emailjs.init({
+  publicKey: "iM5wGDDykpN8fcvno",
+});
     import { auth } from './firebase-config.js';
     import {
         createUserWithEmailAndPassword,
@@ -576,12 +575,14 @@
     // 2. Form submission handler
     const registerBtn = document.getElementById('registerBtn');
     registerBtn.addEventListener('click', async () => {
+        // Capture all inputs
         const first = document.getElementById('regFirstName').value.trim();
         const last = document.getElementById('regLastName').value.trim();
         const email = document.getElementById('regEmail').value.trim();
         const password = document.getElementById('regPassword').value;
         const confirm = document.getElementById('regConfirm').value;
 
+        // Basic Validations
         if (!email || !password) { 
             document.getElementById('registerErrorMsg').textContent = 'Email and Password are required.';
             document.getElementById('registerError').classList.add('visible');
@@ -602,8 +603,8 @@
             const displayName = [first, last].filter(Boolean).join(' ') || email.split('@')[0];
             await updateProfile(cred.user, { displayName });
 
-            // B. Send Welcoming Email using your specific Template ID: lfrgttl
-            // The keys on the left (to_email, user_name) must match your template tags
+            // B. Send Welcoming Email - Use the correct Service ID and Template ID
+            // Make sure these match exactly what is in your dashboard
             const response = await emailjs.send("service_bfgvkcf", "lfrgttl", {
                 to_email: email,                  
                 user_name: displayName,           
@@ -611,20 +612,23 @@
                 reply_to: "ceylonhscode@gmail.com" 
             });
 
-            console.log('Email sent successfully!', response.status, response.text);
+            console.log('SUCCESS!', response.status, response.text);
 
-            // C. Finalize state and redirect
+            // C. Finalize login state
             localStorage.setItem('isLoggedIn', 'true');
-            sessionStorage.setItem('toastMsg', `Welcome! A confirmation email has been sent to ${email} 📧`);
+            sessionStorage.setItem('toastMsg', `Account created! Email sent to ${email} 📧`);
             window.location.href = 'index.html';
 
         } catch (err) {
-            console.error("Registration/Email Error:", err);
+            console.error("FAILED...", err);
+            // Show specific error to user
             document.getElementById('registerErrorMsg').textContent = 'Error: ' + err.message;
             document.getElementById('registerError').classList.add('visible');
             registerBtn.textContent = 'Create Account';
             registerBtn.disabled = false;
         }
+
+        
     });
 </script>
 </body>
