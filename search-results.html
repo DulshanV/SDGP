@@ -484,7 +484,14 @@
             opacity: 0.6,
             blending: THREE.AdditiveBlending
         });
-
+ /*Const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.03,
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.6,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+        });*/
         const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
         scene.add(particlesMesh);
 

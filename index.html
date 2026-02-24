@@ -997,6 +997,52 @@
         }
 
 
+        /* Floating History Button Style */
+.view-history-btn {
+    position: fixed;
+    bottom: 160px; /* Positioned above the favorites button */
+    left: 30px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(20px);
+    border-radius: 50px;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.view-history-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-3px);
+}
+
+.history-item-row {
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #e2e8f0;
+}
+
+.history-query-text {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.history-timestamp {
+    font-size: 12px;
+    color: #64748b;
+}
+
         /* Update this in your index.html <style> block */
         .view-fav-btn {
             display: none;
@@ -2292,6 +2338,22 @@
 </section>
 
 
+<button id="viewHistoryBtn" class="view-history-btn" style="display: none;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <span>History</span>
+</button>
+
+<div id="historyModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" id="closeHistory">&times;</span>
+        <h2 style="color: #2d3748; margin-bottom: 20px;">Your Search History</h2>
+        <div id="historyList" class="favorite-container">
+            </div>
+    </div>
+</div>
+
     <div id="favoritesModal" class="modal">
 
         <div class="modal-content">
@@ -2763,6 +2825,96 @@
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 4000);
         }
+
+        import { auth } from './firebase-config.js';
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, where, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const db = getFirestore();
+const historyBtn = document.getElementById('viewHistoryBtn');
+const historyModal = document.getElementById('historyModal');
+const historyList = document.getElementById('historyList');
+
+// 1. Show/Hide History Button based on Login Status
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        historyBtn.style.display = 'flex';
+    } else {
+        historyBtn.style.display = 'none';
+    }
+});
+
+// 2. Save Search to History on Form Submit
+const hsSearchForm = document.querySelector('.form-panel form');
+if (hsSearchForm) {
+    hsSearchForm.addEventListener('submit', async () => {
+        const user = auth.currentUser;
+        const queryInput = document.getElementById('searchQuery').value; // Ensure your input ID matches
+
+        if (user && queryInput.trim() !== "") {
+            try {
+                await addDoc(collection(db, "searchHistory"), {
+                    userId: user.uid,
+                    query: queryInput,
+                    timestamp: serverTimestamp()
+                });
+            } catch (e) {
+                console.error("Error saving history: ", e);
+            }
+        }
+    });
+}
+
+// 3. View History Modal Logic
+historyBtn.onclick = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    historyList.innerHTML = '<p style="color: #64748b;">Loading history...</p>';
+    historyModal.style.display = "block";
+
+    try {
+        const q = query(
+            collection(db, "searchHistory"),
+            where("userId", "==", user.uid),
+            orderBy("timestamp", "desc")
+        );
+
+        const querySnapshot = await getDocs(q);
+        historyList.innerHTML = "";
+
+        if (querySnapshot.empty) {
+            historyList.innerHTML = '<p style="color: #64748b; text-align: center;">No history found.</p>';
+            return;
+        }
+
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const date = data.timestamp ? data.timestamp.toDate().toLocaleString() : "Just now";
+            
+            historyList.innerHTML += `
+                <div class="history-item-row">
+                    <div>
+                        <div class="history-query-text">${data.query}</div>
+                        <div class="history-timestamp">${date}</div>
+                    </div>
+                    <button onclick="window.location.href='search-results.html?q=${encodeURIComponent(data.query)}'" 
+                            style="padding: 6px 12px; border: none; border-radius: 8px; background: #4f46e5; color: white; cursor:pointer;">
+                        Re-search
+                    </button>
+                </div>`;
+        });
+    } catch (e) {
+        console.error("Error fetching history: ", e);
+        historyList.innerHTML = '<p style="color: red;">Error loading history.</p>';
+    }
+};
+
+// Close Modal Logic
+document.getElementById('closeHistory').onclick = () => historyModal.style.display = "none";
+window.onclick = (event) => {
+    if (event.target == historyModal) historyModal.style.display = "none";
+};
 
         // ── Auth state listener ──────────────────────────────────────────────────
         onAuthStateChanged(auth, (user) => {
