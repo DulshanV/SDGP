@@ -8,7 +8,7 @@ CORS(app)
 
 # --- INITIALIZE GROQ ---
 # Paste the API key you copied from the Groq website inside the quotes below
-groq_client = Groq(api_key="YOUR_GROQ_API_KEY_HERE") 
+groq_client = Groq(api_key="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") 
 
 @app.route('/chat', methods=['POST'])
 def chat():
