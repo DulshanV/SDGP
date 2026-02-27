@@ -2638,6 +2638,17 @@
             hsFinderForm.addEventListener('submit', function (e) {
                 e.preventDefault();
 
+                // --- START: Authentication Check ---
+                // Checking if the user is logged in via localStorage
+                const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+                if (!isLoggedIn) {
+                    alert("Access Denied: Please Log In or Register to search for HS Codes.");
+                    window.location.href = 'log-in.html';
+                    return; // Stop the execution here
+                }
+                // --- END: Authentication Check ---
+
                 // Get values
                 const email = document.getElementById('email').value;
                 const madeIn = document.getElementById('madeIn').value;
