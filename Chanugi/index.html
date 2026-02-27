@@ -2783,6 +2783,27 @@
                 historyBtn.style.display = 'none';
             }
         });
+
+        // 2. Save Search to History on Form Submit
+        const hsSearchForm = document.querySelector('.form-panel form');
+        if (hsSearchForm) {
+            hsSearchForm.addEventListener('submit', async () => {
+                const user = auth.currentUser;
+                const queryInput = document.getElementById('searchQuery').value; // Ensure your input ID matches
+
+                if (user && queryInput.trim() !== "") {
+                    try {
+                        await addDoc(collection(db, "searchHistory"), {
+                            userId: user.uid,
+                            query: queryInput,
+                            timestamp: serverTimestamp()
+                        });
+                    } catch (e) {
+                        console.error("Error saving history: ", e);
+                    }
+                }
+            });
+        }
         
         // Auth button behaviour is handled by the Firebase module script below.
 
