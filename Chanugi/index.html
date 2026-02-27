@@ -2765,6 +2765,16 @@
         // END: AI Chatbot Button Script
         //
 
+        //History Button Script//
+        import { auth } from './firebase-config.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, where, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const db = getFirestore();
+        const historyBtn = document.getElementById('viewHistoryBtn');
+        const historyModal = document.getElementById('historyModal');
+        const historyList = document.getElementById('historyList');
+
         // Auth button behaviour is handled by the Firebase module script below.
 
         // ─── AUTH-GATED FAVORITES VISIBILITY ────────────────────────────────────────
