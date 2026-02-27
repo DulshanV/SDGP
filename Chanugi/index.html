@@ -2775,6 +2775,15 @@
         const historyModal = document.getElementById('historyModal');
         const historyList = document.getElementById('historyList');
 
+        // 1. Show/Hide History Button based on Login Status
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                historyBtn.style.display = 'flex';
+            } else {
+                historyBtn.style.display = 'none';
+            }
+        });
+        
         // Auth button behaviour is handled by the Firebase module script below.
 
         // ─── AUTH-GATED FAVORITES VISIBILITY ────────────────────────────────────────
