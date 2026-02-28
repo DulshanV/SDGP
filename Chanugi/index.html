@@ -2363,7 +2363,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- History Button-->
     <button id="viewHistoryBtn" class="view-history-btn" onclick="toggleHistoryModal()">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -2876,6 +2876,18 @@
         window.onclick = (event) => {
             if (event.target == historyModal) historyModal.style.display = "none";
         };
+
+        // Function to open and close the History Modal
+        function toggleHistoryModal() {
+            const modal = document.getElementById('historyModal');
+            
+            // If modal is visible, hide it. If hidden, show it.
+            if (modal.style.display === "block") {
+                modal.style.display = "none";
+            } else {
+                modal.style.display = "block";
+            }
+        }
         
         // Auth button behaviour is handled by the Firebase module script below.
 
