@@ -2796,12 +2796,31 @@
         });
 
         // 2. Save Search to History on Form Submit
-        // We use 'hsFinderForm' because that is the ID of your search form
+        // Add 'hsFinderForm' because that is the ID of your search form
         const hsSearchForm = document.getElementById('hsFinderForm'); 
         
         if (hsSearchForm) {
             hsSearchForm.addEventListener('submit', async () => {
                 const user = auth.currentUser;
+
+                // Getting the value from your search input field (ID: productDetails)
+                const queryInput = document.getElementById('productDetails').value; 
+
+                if (user && queryInput.trim() !== "") {
+                    try {
+                        // Saving the Search Data to Firestore
+                        await addDoc(collection(db, "searchHistory"), {
+                            userId: user.uid,              // Unique ID of the logged-in user
+                            query: queryInput,             // The text they searched for
+                            timestamp: serverTimestamp()    // Precise time from Firebase server
+                        });
+                        console.log("Success: Search history saved to Firestore!");
+                    } catch (e) {
+                        console.error("Error saving history: ", e);
+                    }
+                }
+            });
+        }
 
         // 3. View History Modal Logic
         historyBtn.onclick = async () => {
