@@ -2353,13 +2353,17 @@
     <!-- History Model-->>
     <div id="historyModal" class="modal">
         <div class="modal-content">
-            <span class="close-btn" id="closeHistory">&times;</span>
-            <h2 style="color: #2d3748; margin-bottom: 20px;">Your Search History</h2>
+            <span class="close-btn" onclick="toggleHistoryModal()">&times;</span>
+            <h3 style="margin-bottom: 20px; color: #1e293b; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
+                <i class="fas fa-history"></i> Your Search History
+            </h3>
+            
             <div id="historyList" class="favorite-container">
-                </div>
+                <p style="color: #64748b; text-align: center; padding: 20px;">No search history found.</p>
+            </div>
         </div>
     </div>
-
+    
     <!-- History Button-->
     <button id="viewHistoryBtn" class="view-history-btn" onclick="toggleHistoryModal()">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
