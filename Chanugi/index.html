@@ -2796,25 +2796,12 @@
         });
 
         // 2. Save Search to History on Form Submit
-        const hsSearchForm = document.querySelector('.form-panel form');
+        // We use 'hsFinderForm' because that is the ID of your search form
+        const hsSearchForm = document.getElementById('hsFinderForm'); 
+        
         if (hsSearchForm) {
             hsSearchForm.addEventListener('submit', async () => {
                 const user = auth.currentUser;
-                const queryInput = document.getElementById('searchQuery').value; // Ensure your input ID matches
-
-                if (user && queryInput.trim() !== "") {
-                    try {
-                        await addDoc(collection(db, "searchHistory"), {
-                            userId: user.uid,
-                            query: queryInput,
-                            timestamp: serverTimestamp()
-                        });
-                    } catch (e) {
-                        console.error("Error saving history: ", e);
-                    }
-                }
-            });
-        }
 
         // 3. View History Modal Logic
         historyBtn.onclick = async () => {
