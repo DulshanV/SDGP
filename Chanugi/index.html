@@ -2781,6 +2781,9 @@
         //
 
         //History Button Script//
+        // ==========================================
+        // UPDATED HISTORY LOGIC (REPLACEMENT)
+        // ==========================================
         import { auth } from './firebase-config.js';
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, collection, addDoc, query, where, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -2789,36 +2792,30 @@
         const historyBtn = document.getElementById('viewHistoryBtn');
         const historyModal = document.getElementById('historyModal');
         const historyList = document.getElementById('historyList');
+        const closeHistory = document.getElementById('closeHistory');
 
         // 1. Show/Hide History Button based on Login Status
         onAuthStateChanged(auth, (user) => {
-            if (user) {
-                historyBtn.style.display = 'flex';
-            } else {
-                historyBtn.style.display = 'none';
+            if (historyBtn) {
+                historyBtn.style.display = user ? 'flex' : 'none';
             }
         });
 
         // 2. Save Search to History on Form Submit
-        // Add 'hsFinderForm' because that is the ID of your search form
-        const hsSearchForm = document.getElementById('hsFinderForm'); 
-        
+        const hsSearchForm = document.getElementById('hsFinderForm');
         if (hsSearchForm) {
             hsSearchForm.addEventListener('submit', async () => {
                 const user = auth.currentUser;
-
-                // Getting the value from your search input field (ID: productDetails)
-                const queryInput = document.getElementById('productDetails').value; 
+                const queryInput = document.getElementById('productDetails').value;
 
                 if (user && queryInput.trim() !== "") {
                     try {
-                        // Saving the Search Data to Firestore
                         await addDoc(collection(db, "searchHistory"), {
-                            userId: user.uid,              // Unique ID of the logged-in user
-                            query: queryInput,             // The text they searched for
-                            timestamp: serverTimestamp()    // Precise time from Firebase server
+                            userId: user.uid,
+                            query: queryInput,
+                            timestamp: serverTimestamp()
                         });
-                        console.log("Success: Search history saved to Firestore!");
+                        console.log("Search saved!");
                     } catch (e) {
                         console.error("Error saving history: ", e);
                     }
@@ -2826,76 +2823,65 @@
             });
         }
 
-        // 3. View History Modal Logic
-        historyBtn.onclick = async () => {
-            const user = auth.currentUser;
-            if (!user) return;
+        // 3. Open Modal and Fetch Data when History Button is clicked
+        if (historyBtn) {
+            historyBtn.addEventListener('click', async () => {
+                const user = auth.currentUser;
+                if (!user) return;
 
-            historyList.innerHTML = '<p style="color: #64748b;">Loading history...</p>';
-            historyModal.style.display = "block";
+                // Show modal and loading state
+                historyModal.style.display = "block";
+                historyList.innerHTML = '<p style="text-align:center; padding:20px; color:#64748b;">Loading history...</p>';
 
-            try {
-                const q = query(
-                    collection(db, "searchHistory"),
-                    where("userId", "==", user.uid),
-                    orderBy("timestamp", "desc")
-                );
+                try {
+                    const q = query(
+                        collection(db, "searchHistory"),
+                        where("userId", "==", user.uid),
+                        orderBy("timestamp", "desc")
+                    );
 
-                const querySnapshot = await getDocs(q);
-                historyList.innerHTML = "";
+                    const querySnapshot = await getDocs(q);
+                    historyList.innerHTML = "";
 
-                if (querySnapshot.empty) {
-                    historyList.innerHTML = '<p style="color: #64748b; text-align: center;">No history found.</p>';
-                    return;
+                    if (querySnapshot.empty) {
+                        historyList.innerHTML = '<p style="text-align:center; padding:20px;">No search history found.</p>';
+                        return;
+                    }
+
+                    querySnapshot.forEach((doc) => {
+                        const data = doc.data();
+                        const date = data.timestamp ? data.timestamp.toDate().toLocaleString() : "Just now";
+                        
+                        historyList.innerHTML += `
+                            <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; border-bottom:1px solid #e2e8f0;">
+                                <div>
+                                    <div style="font-weight:600; color:#1e293b; font-size:14px;">${data.query}</div>
+                                    <div style="font-size:11px; color:#94a3b8;">${date}</div>
+                                </div>
+                                <button onclick="window.location.href='search-results.html?q=${encodeURIComponent(data.query)}'" 
+                                        style="padding:5px 10px; border:none; border-radius:6px; background:#4f46e5; color:white; cursor:pointer; font-size:11px;">
+                                    Re-search
+                                </button>
+                            </div>`;
+                    });
+                } catch (e) {
+                    console.error("Error fetching history: ", e);
+                    historyList.innerHTML = '<p style="color:red; text-align:center;">Error loading history.</p>';
                 }
-
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    const date = data.timestamp ? data.timestamp.toDate().toLocaleString() : "Just now";
-                    
-                    historyList.innerHTML += `
-                        <div class="history-item-row">
-                            <div>
-                                <div class="history-query-text">${data.query}</div>
-                                <div class="history-timestamp">${date}</div>
-                            </div>
-                            <button onclick="window.location.href='search-results.html?q=${encodeURIComponent(data.query)}'" 
-                                    style="padding: 6px 12px; border: none; border-radius: 8px; background: #4f46e5; color: white; cursor:pointer;">
-                                Re-search
-                            </button>
-                        </div>`;
-                });
-            } catch (e) {
-                console.error("Error fetching history: ", e);
-                historyList.innerHTML = '<p style="color: red;">Error loading history.</p>';
-            }
-        };
-
-        // Close Modal Logic
-        document.getElementById('closeHistory').onclick = () => historyModal.style.display = "none";
-        window.onclick = (event) => {
-            if (event.target == historyModal) historyModal.style.display = "none";
-        };
-
-        // Function to open and close the History Modal
-        function toggleHistoryModal() {
-            const modal = document.getElementById('historyModal');
-            
-            // If modal is visible, hide it. If hidden, show it.
-            if (modal.style.display === "block") {
-                modal.style.display = "none";
-            } else {
-                modal.style.display = "block";
-            }
+            });
         }
 
-        // Close the modal if the user clicks anywhere outside of the modal box
-        window.onclick = function(event) {
-            const modal = document.getElementById('historyModal');
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
+        // 4. Close Modal Logic
+        if (closeHistory) {
+            closeHistory.onclick = () => { historyModal.style.display = "none"; };
         }
+
+        window.addEventListener('click', (event) => {
+            if (event.target == historyModal) {
+                historyModal.style.display = "none";
+            }
+        });
+        // ==========================================
         
         // Auth button behaviour is handled by the Firebase module script below.
 
