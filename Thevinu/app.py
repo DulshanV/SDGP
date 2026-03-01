@@ -1,14 +1,20 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
-from groq import Groq  # We import Groq instead of Ollama
+from groq import Groq
 
 app = Flask(__name__)
 CORS(app)
 
 # --- INITIALIZE GROQ ---
-# Paste the API key you copied from the Groq website inside the quotes below
-groq_client = Groq(api_key="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") 
+groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+
+# --- LOAD KNOWLEDGE BASE ---
+knowledge_base = ""
+kb_path = os.path.join(os.path.dirname(__file__), "knowledge_base.txt")
+if os.path.exists(kb_path):
+    with open(kb_path, "r", encoding="utf-8") as f:
+        knowledge_base = f.read()
 
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -19,7 +25,7 @@ def chat():
         return jsonify({"response": "Error: No message received"}), 400
 
     # --- THE BRAIN: Strictly configured as a Help Desk Guide ---
-    system_instruction = """
+    system_instruction = f"""
     You are the 'CeylonHS Website Support Guide'. 
     Your ONLY job is to help users understand how to use the CeylonHS website.
     
@@ -36,21 +42,23 @@ def chat():
     - Accounts: Login requires a registered student or agent ID.
     - Tech Support: Email support@ceylonhs.lk.
     
+    KNOWLEDGE BASE (use this to answer questions about CeylonHS):
+    {knowledge_base}
+    
     STYLE:
-    - Keep answers very short and helpful (1-2 sentences maximum).
+    - Keep answers very short and helpful (1-3 sentences maximum).
+    - Be friendly and professional.
     """
 
     try:
-        # --- SEND REQUEST TO GROQ CLOUD ---
         chat_completion = groq_client.chat.completions.create(
             messages=[
                 {'role': 'system', 'content': system_instruction},
                 {'role': 'user', 'content': user_message},
             ],
-            model="llama-3.3-70b-versatile" # Uses Groq's lightning-fast hardware
+            model="llama-3.3-70b-versatile"
         )
         
-        # Extract the text response from Groq's data structure
         bot_reply = chat_completion.choices[0].message.content
         return jsonify({"response": bot_reply})
 
